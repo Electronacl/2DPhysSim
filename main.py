@@ -15,7 +15,7 @@ cells = []
 grid_width = 100
 grid_height = 100
 
-grid_offset = 250
+grid_offset = 200
 
 def init_cells():
     for i in range(0, grid_width * grid_height):
@@ -100,14 +100,15 @@ mat_batch = pyglet.graphics.Batch()
 mat_view_bg = pyglet.shapes.Rectangle(
     x=0,
     y=0,
-    width=250,
+    width=grid_offset,
     height=blocksize*grid_height,
     color=(20, 20, 20),
     batch=mat_batch
 )
 
 mat_list = []
-mat_height = 50
+mat_height = 40
+mat_pad = 5
 
 mat_selection = pyglet.shapes.Rectangle(
     x=0,
@@ -121,10 +122,10 @@ mat_selection = pyglet.shapes.Rectangle(
 for m in range(0, len(materials)):
     mat_list.append(
         pyglet.shapes.Rectangle(
-            x=10,
-            y=blocksize*grid_height - (m+1)*mat_height + 10,
-            width=mat_height-20,
-            height=mat_height-20,
+            x=mat_pad,
+            y=blocksize*grid_height - (m+1)*mat_height + mat_pad,
+            width=mat_height-mat_pad*2,
+            height=mat_height-mat_pad*2,
             color=colour_data["colours"][m][0],
             batch=mat_batch
         )
@@ -134,8 +135,8 @@ for m in range(0, len(materials)):
             text=materials[m],
             font_name="Lexend",
             x=mat_height,
-            y=blocksize*grid_height - (m+1)*mat_height + 10,
-            font_size=28,
+            y=blocksize*grid_height - (m+1)*mat_height + mat_pad,
+            font_size=16,
             batch=mat_batch
         )
     )
@@ -146,7 +147,7 @@ debug_FPS = pyglet.window.FPSDisplay(win)
 # Functions
 def get_cell_index(x, y):
     end_x = min(max(x, 0), grid_width-1)
-    end_y = min(max(y, 0), grid_height)
+    end_y = min(max(y, 0), grid_height-1)
     return grid_width * end_x + end_y
 
 def update_visuals():
@@ -208,21 +209,21 @@ def sand_physics(x, y, this_cell):
         # Try and move down and to the left or right
         if random.getrandbits(1):
             # Try left, then right
-            if x > 0 and cells[get_cell_index(x - 1, y - 1)][0] == 0:
+            if x > 0 and cells[get_cell_index(x - 1, y - 1)][0] == 0 and cells[get_cell_index(x-1, y)][0] == 0:
                 cells[get_cell_index(x - 1, y - 1)] = copy.deepcopy(this_cell)
                 cells[get_cell_index(x, y)] = [0, 0, 0]
                 return True
-            elif x < grid_width - 1 and cells[get_cell_index(x + 1, y - 1)][0] == 0:
+            elif x < grid_width - 1 and cells[get_cell_index(x + 1, y - 1)][0] == 0 and cells[get_cell_index(x+1, y)][0] == 0:
                 cells[get_cell_index(x + 1, y - 1)] = copy.deepcopy(this_cell)
                 cells[get_cell_index(x, y)] = [0, 0, 0]
                 return True
         else:
             # Try right, then left
-            if x < grid_width - 1 and cells[get_cell_index(x + 1, y - 1)][0] == 0:
+            if x < grid_width - 1 and cells[get_cell_index(x + 1, y - 1)][0] == 0 and cells[get_cell_index(x+1, y)][0] == 0:
                 cells[get_cell_index(x + 1, y - 1)] = copy.deepcopy(this_cell)
                 cells[get_cell_index(x, y)] = [0, 0, 0]
                 return True
-            elif x > 0 and cells[get_cell_index(x - 1, y - 1)][0] == 0:
+            elif x > 0 and cells[get_cell_index(x - 1, y - 1)][0] == 0 and cells[get_cell_index(x-1, y)][0] == 0:
                 cells[get_cell_index(x - 1, y - 1)] = copy.deepcopy(this_cell)
                 cells[get_cell_index(x, y)] = [0, 0, 0]
                 return True
@@ -238,21 +239,21 @@ def fluid_physics(x, y, this_cell):
         # Try and move down and to the left or right
         if random.getrandbits(1):
             # Try left, then right
-            if x > 0 and cells[get_cell_index(x - 1, y - 1)][0] == 0 and cells[get_cell_index(x-1, y)] == 0:
+            if x > 0 and cells[get_cell_index(x - 1, y - 1)][0] == 0 and cells[get_cell_index(x-1, y)][0] == 0:
                 cells[get_cell_index(x - 1, y - 1)] = copy.deepcopy(this_cell)
                 cells[get_cell_index(x, y)] = [0, 0, 0]
                 return True
-            elif x < grid_width-1 and cells[get_cell_index(x + 1, y - 1)][0] == 0 and cells[get_cell_index(x+1, y)] == 0:
+            elif x < grid_width-1 and cells[get_cell_index(x + 1, y - 1)][0] == 0 and cells[get_cell_index(x+1, y)][0] == 0:
                 cells[get_cell_index(x + 1, y - 1)] = copy.deepcopy(this_cell)
                 cells[get_cell_index(x, y)] = [0, 0, 0]
                 return True
         else:
             # Try right, then left
-            if x < grid_width - 1 and cells[get_cell_index(x + 1, y - 1)][0] == 0 and cells[get_cell_index(x+1, y)] == 0:
+            if x < grid_width - 1 and cells[get_cell_index(x + 1, y - 1)][0] == 0 and cells[get_cell_index(x+1, y)][0] == 0:
                 cells[get_cell_index(x + 1, y - 1)] = copy.deepcopy(this_cell)
                 cells[get_cell_index(x, y)] = [0, 0, 0]
                 return True
-            elif x > 0 and cells[get_cell_index(x - 1, y - 1)][0] == 0 and cells[get_cell_index(x-1, y)] == 0:
+            elif x > 0 and cells[get_cell_index(x - 1, y - 1)][0] == 0 and cells[get_cell_index(x-1, y)][0] == 0:
                 cells[get_cell_index(x - 1, y - 1)] = copy.deepcopy(this_cell)
                 cells[get_cell_index(x, y)] = [0, 0, 0]
                 return True
