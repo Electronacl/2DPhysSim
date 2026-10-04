@@ -483,12 +483,12 @@ def update_physics():
                     fluid_physics(x, y, this_cell)
                 case 7:
                     # Sodium
-                    if explode_on_contact(x, y, [2], 10):
+                    if explode_on_contact(x, y, [2, 16], 10):
                         continue
                     sand_physics(x, y, this_cell)
                 case 8:
                     # Caesium
-                    if explode_on_contact(x, y, [2], 50):
+                    if explode_on_contact(x, y, [2, 16], 50):
                         continue
                     sand_physics(x, y, this_cell)
                 case 9:
@@ -528,6 +528,9 @@ def update_physics():
 
                     sand_physics(x, y, this_cell)
                 case 16:
+                    # Rust transformation
+                    change(x, y, [3], [5])
+
                     # Saltwater
                     if check_fluid_swaps(x, y, [2, 6], this_cell):
                         continue
