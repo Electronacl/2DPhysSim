@@ -456,11 +456,10 @@ def on_draw():
     globals()["time_delta"] += new_time-old_time
     globals()["old_time"] = new_time
 
-    if mouse_down:
-        update_mouse_px()
-
     # Physics logic
     for i in range(0, int(time_delta//sim_rate)):
+        if mouse_down:
+            update_mouse_px()
         update_physics()
 
     globals()["time_delta"] = time_delta%sim_rate
