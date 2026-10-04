@@ -8,7 +8,7 @@ import json
 import random
 
 # Meta
-plat_version = "0.2.2-4"
+plat_version = "0.3.0-5"
 
 # Cell data
 cells = []
