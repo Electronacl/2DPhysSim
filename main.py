@@ -34,7 +34,13 @@ materials = [
     "Lava",
     "Stone",
     "Glass",
-    "Brick"
+    "Brick",
+    "Ice",
+    "Hot Water"
+]
+
+hidden_materials = [
+    14
 ]
 
 # Physics constants
@@ -270,6 +276,16 @@ def heavy_physics(x, y, this_cell):
         return True
     return False
 
+def spread(x, y, can_spread, this_cell):
+    if y > 0 and cells[get_cell_index(x, y - 1)][0] in can_spread:
+        set_px(x, y - 1, this_cell[0])
+    if y < grid_height - 1 and cells[get_cell_index(x, y + 1)][0] in can_spread:
+        set_px(x, y + 1, this_cell[0])
+    if x < grid_width - 1 and cells[get_cell_index(x + 1, y)][0] in can_spread:
+        set_px(x + 1, y, this_cell[0])
+    if x > 0 and cells[get_cell_index(x - 1, y)][0] in can_spread:
+        set_px(x - 1, y, this_cell[0])
+
 def absorb(x, y, mat_in, mat_out):
     for i in range(0, len(mat_in)):
         if y > 0 and cells[get_cell_index(x, y - 1)][0] == mat_in[i]:
@@ -407,7 +423,7 @@ def update_physics():
                     if check_swaps(x, y, sinks_in_water, this_cell):
                         continue
 
-                    change(x, y, [1, 4], [11, 12])
+                    change(x, y, [1, 4, 13], [11, 12, 14])
 
                     fluid_physics(x, y, this_cell)
                 case 10:
@@ -419,6 +435,14 @@ def update_physics():
                 case 12:
                     # Brick
                     pass
+                case 13:
+                    # Ice
+                    spread(x, y, [2], this_cell)
+                case 14:
+                    # Hot Water
+                    spread(x, y, [13], this_cell)
+
+                    set_px(x, y, 2)
 
 # Drawing code
 update_selection()
