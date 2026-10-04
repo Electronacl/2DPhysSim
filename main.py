@@ -54,10 +54,11 @@ blocksize = 8
 sim_rate = 0.01
 
 # Globals
-global mouse_down, mouse_x, mouse_y
+global mouse_down, mouse_x, mouse_y, mouse_erase
 mouse_down = False
 mouse_x = 0
 mouse_y = 0
+mouse_erase = False
 
 global current_mat, mat_view_pointer
 current_mat = 1
@@ -160,6 +161,19 @@ def update_mouse_px():
     used_y = int(mouse_y // blocksize)
     if used_x >= 0:
         set_px(used_x, used_y, current_mat)
+
+def erase_mouse_px():
+    used_x = int((mouse_x-grid_offset) // blocksize)
+    used_y = int(mouse_y // blocksize)
+    if used_x >= 0:
+        set_px(used_x, used_y, 0)
+
+def mouse_pick():
+    used_x = int((mouse_x - grid_offset) // blocksize)
+    used_y = int(mouse_y // blocksize)
+    if used_x >= 0:
+        globals()["current_mat"] = cells[get_cell_index(used_x, used_y)][0]
+        update_selection()
 
 def set_px(x, y, mat):
     cells[get_cell_index(x, y)] = [mat, random.randint(0, len(colour_data["colours"][mat]) - 1), 0]
@@ -460,6 +474,8 @@ def on_draw():
     for i in range(0, int(time_delta//sim_rate)):
         if mouse_down:
             update_mouse_px()
+        if mouse_erase:
+            erase_mouse_px()
         update_physics()
 
     globals()["time_delta"] = time_delta%sim_rate
@@ -481,16 +497,27 @@ def on_mouse_motion(x, y, dx, dy):
 
 @win.event
 def on_mouse_press(x, y, button, modifiers):
-    globals()["mouse_down"] = True
-    update_current_px(x, y)
-    if x < grid_offset:
-        globals()["current_mat"] = min(int(((win.height-y)//mat_height)+mat_view_pointer), len(materials)-1)
-        update_selection()
+    if button == pyglet.window.mouse.LEFT:
+        globals()["mouse_down"] = True
+        update_current_px(x, y)
+        if x < grid_offset:
+            globals()["current_mat"] = min(int(((win.height-y)//mat_height)+mat_view_pointer), len(materials)-1)
+            update_selection()
+    if button == pyglet.window.mouse.RIGHT:
+        globals()["mouse_erase"] = True
+        update_current_px(x, y)
+    if button == pyglet.window.mouse.MIDDLE:
+        update_current_px(x, y)
+        mouse_pick();
 
 @win.event
 def on_mouse_release(x, y, button, modifiers):
-    globals()["mouse_down"] = False
-    update_current_px(x, y)
+    if button == pyglet.window.mouse.LEFT:
+        update_current_px(x, y)
+        globals()["mouse_down"] = False
+    if button == pyglet.window.mouse.RIGHT:
+        update_current_px(x, y)
+        globals()["mouse_erase"] = False
 
 
 
