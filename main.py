@@ -30,12 +30,17 @@ materials = [
     "Rust",
     "Acid",
     "Sodium",
-    "Caesium"
+    "Caesium",
+    "Lava",
+    "Stone",
+    "Glass",
+    "Brick"
 ]
 
 # Physics constants
 sinks_in_water = [
-    4 # Mud
+    4, # Mud
+    10 # Stone
 ]
 
 # Constants
@@ -257,6 +262,14 @@ def fluid_physics(x, y, this_cell):
             return True
     return False
 
+def heavy_physics(x, y, this_cell):
+    if y != 0 and cells[get_cell_index(x, y - 1)][0] == 0:
+        # Move down into air
+        cells[get_cell_index(x, y - 1)] = copy.deepcopy(this_cell)
+        cells[get_cell_index(x, y)] = [0, 0, 0]
+        return True
+    return False
+
 def absorb(x, y, mat_in, mat_out):
     for i in range(0, len(mat_in)):
         if y > 0 and cells[get_cell_index(x, y - 1)][0] == mat_in[i]:
@@ -384,6 +397,28 @@ def update_physics():
                     if explode_on_contact(x, y, [2], 50):
                         continue
                     sand_physics(x, y, this_cell)
+                case 9:
+                    # Lava
+                    # Reactions - water into stone
+                    if absorb(x, y, [2], [10]):
+                        continue
+
+                    # Sinking
+                    if check_swaps(x, y, sinks_in_water, this_cell):
+                        continue
+
+                    change(x, y, [1, 4], [11, 12])
+
+                    fluid_physics(x, y, this_cell)
+                case 10:
+                    # Stone
+                    heavy_physics(x, y, this_cell)
+                case 11:
+                    # Glass
+                    pass
+                case 12:
+                    # Brick
+                    pass
 
 # Drawing code
 update_selection()
