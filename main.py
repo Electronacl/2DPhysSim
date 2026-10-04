@@ -40,7 +40,9 @@ materials = [
     "Ice",
     "Hot Water",
     "Salt",
-    "Saltwater"
+    "Saltwater",
+    "Sponge (dry)",
+    "Sponge (wet)"
 ]
 
 hidden_materials = [
@@ -501,7 +503,7 @@ def update_physics():
                     if check_swaps(x, y, sinks_in_water, this_cell):
                         continue
 
-                    change(x, y, [1, 4, 13, 5], [11, 12, 14, 3])
+                    change(x, y, [1, 4, 13, 5, 18], [11, 12, 14, 3, 17])
 
                     fluid_physics(x, y, this_cell)
                 case 10:
@@ -528,14 +530,26 @@ def update_physics():
 
                     sand_physics(x, y, this_cell)
                 case 16:
+                    # Saltwater
                     # Rust transformation
                     change(x, y, [3], [5])
 
-                    # Saltwater
                     if check_fluid_swaps(x, y, [2, 6], this_cell):
                         continue
 
                     fluid_physics(x, y, this_cell)
+                case 17:
+                    # Sponge (wet)
+                    if change(x, y, [16], [15]):
+                        set_px(x, y, 18)
+                        continue
+
+                    if change(x, y, [2], [0]):
+                        set_px(x, y, 18)
+                        continue
+                case 18:
+                    # Sponge (dry)
+                    continue
 
 
 # Drawing code
