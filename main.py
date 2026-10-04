@@ -8,7 +8,7 @@ import json
 import random
 
 # Meta
-plat_version = "0.2.0-2"
+plat_version = "0.2.1-3"
 
 # Cell data
 cells = []
@@ -242,7 +242,7 @@ def fluid_physics(x, y, this_cell):
                 cells[get_cell_index(x - 1, y - 1)] = copy.deepcopy(this_cell)
                 cells[get_cell_index(x, y)] = [0, 0, 0]
                 return True
-    if random.getrandbits(1):
+    if random.random() < 0.1:
         # Try and move right, or else left
         if x < grid_width - 1 and cells[get_cell_index(x + 1, y)][0] == 0:
             cells[get_cell_index(x + 1, y)] = copy.deepcopy(this_cell)
