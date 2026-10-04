@@ -8,7 +8,7 @@ import json
 import random
 
 # Meta
-plat_version = "0.2.1-3"
+plat_version = "0.2.2-4"
 
 # Cell data
 cells = []
@@ -423,7 +423,7 @@ def update_physics():
                     if check_swaps(x, y, sinks_in_water, this_cell):
                         continue
 
-                    change(x, y, [1, 4, 13], [11, 12, 14])
+                    change(x, y, [1, 4, 13, 5], [11, 12, 14, 3])
 
                     fluid_physics(x, y, this_cell)
                 case 10:
