@@ -8,7 +8,7 @@ import json
 import random
 
 # Meta
-plat_version = "0.4.0-6"
+plat_version = "0.5.0-7"
 
 # Cell data
 cells = []
@@ -36,7 +36,9 @@ materials = [
     "Glass",
     "Brick",
     "Ice",
-    "Hot Water"
+    "Hot Water",
+    "Salt",
+    "Saltwater"
 ]
 
 hidden_materials = [
@@ -337,12 +339,30 @@ def change(x, y, mat_in, mat_out):
             return True
     return False
 
-
 def check_swaps(x, y, swap_list, this_cell):
     if y < grid_height - 1 and (cells[get_cell_index(x, y + 1)][0] in swap_list):
         old_this_cell = copy.deepcopy(this_cell)
         cells[get_cell_index(x, y)] = copy.deepcopy(cells[get_cell_index(x, y+1)])
         cells[get_cell_index(x, y+1)] = copy.deepcopy(old_this_cell)
+        return True
+    return False
+
+def check_fluid_swaps(x, y, swap_list, this_cell):
+    # Doesn't work the best, but it's okay...
+    if y < grid_height - 1 and (cells[get_cell_index(x, y + 1)][0] in swap_list):
+        old_this_cell = copy.deepcopy(this_cell)
+        cells[get_cell_index(x, y)] = copy.deepcopy(cells[get_cell_index(x, y+1)])
+        cells[get_cell_index(x, y+1)] = copy.deepcopy(old_this_cell)
+        return True
+    if y < grid_height - 1 and x > 0 and (cells[get_cell_index(x-1, y + 1)][0] in swap_list):
+        old_this_cell = copy.deepcopy(this_cell)
+        cells[get_cell_index(x, y)] = copy.deepcopy(cells[get_cell_index(x-1, y+1)])
+        cells[get_cell_index(x-1, y+1)] = copy.deepcopy(old_this_cell)
+        return True
+    if y < grid_height - 1 and x < grid_width-1 and (cells[get_cell_index(x+1, y + 1)][0] in swap_list):
+        old_this_cell = copy.deepcopy(this_cell)
+        cells[get_cell_index(x, y)] = copy.deepcopy(cells[get_cell_index(x+1, y+1)])
+        cells[get_cell_index(x+1, y+1)] = copy.deepcopy(old_this_cell)
         return True
     return False
 
@@ -387,7 +407,7 @@ def update_physics():
                     # Water
 
                     # Mud transformation
-                    if absorb(x, y, [1], [4]):
+                    if absorb(x, y, [1, 15], [4, 16]):
                         continue
 
                     # Rust transformation
@@ -410,7 +430,7 @@ def update_physics():
                 case 6:
                     # Acid
                     # Destroy metals
-                    if absorb(x, y, [3, 5, 7, 8], [0, 2, 0, 0]):
+                    if absorb(x, y, [3, 5, 7, 8], [0, 16, 0, 0]):
                         continue
 
                     # Sinking
@@ -431,7 +451,7 @@ def update_physics():
                 case 9:
                     # Lava
                     # Reactions - water into stone
-                    if absorb(x, y, [2], [10]):
+                    if absorb(x, y, [2, 16], [10, 15]):
                         continue
 
                     # Sinking
@@ -458,6 +478,18 @@ def update_physics():
                     spread(x, y, [13], this_cell)
 
                     set_px(x, y, 2)
+                case 15:
+                    # Salt
+                    if explode_on_contact(x, y, [9], 2):
+                        continue
+
+                    sand_physics(x, y, this_cell)
+                case 16:
+                    # Saltwater
+                    if check_fluid_swaps(x, y, [2, 6], this_cell):
+                        continue
+
+                    fluid_physics(x, y, this_cell)
 
 # Drawing code
 update_selection()
@@ -510,7 +542,7 @@ def on_mouse_press(x, y, button, modifiers):
         update_current_px(x, y)
     if button == pyglet.window.mouse.MIDDLE:
         update_current_px(x, y)
-        mouse_pick();
+        mouse_pick()
 
 @win.event
 def on_mouse_release(x, y, button, modifiers):
