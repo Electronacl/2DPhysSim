@@ -8,7 +8,7 @@ import json
 import random
 
 # Meta
-plat_version = "0.3.0-5"
+plat_version = "0.3.1-6"
 
 # Cell data
 cells = []
@@ -74,7 +74,7 @@ colour_data = json.load(open("colourtable.json"))
 init_cells()
 
 # Init window
-win = pyglet.window.Window(caption=f"2DPhysSim {plat_version}", width=(blocksize*grid_width)+grid_offset, height=blocksize*grid_height, vsync=True, resizable=False)
+win = pyglet.window.Window(caption=f"2DPhysSim {plat_version}", width=(blocksize*grid_width)+grid_offset, height=blocksize*grid_height, vsync=True, resizable=False, visible=False)
 pyglet.font.add_directory("fonts")
 
 # Init all visual cells
@@ -461,6 +461,7 @@ def update_physics():
 # Drawing code
 update_selection()
 old_time = time.time()
+win.set_visible(True)
 @win.event
 def on_draw():
     win.clear()
