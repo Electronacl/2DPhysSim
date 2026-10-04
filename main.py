@@ -19,7 +19,7 @@ grid_offset = 250
 
 def init_cells():
     for i in range(0, grid_width * grid_height):
-        cells.append([0, 0])
+        cells.append([0, 0, 0])
 
 materials = [
     "Air",
@@ -62,7 +62,7 @@ colour_data = json.load(open("colourtable.json"))
 init_cells()
 
 # Init window
-win = pyglet.window.Window(caption=f"Powder Simulation {plat_version}", width=(blocksize*grid_width)+grid_offset, height=blocksize*grid_height, vsync=True, resizable=False)
+win = pyglet.window.Window(caption=f"2DPhysSim {plat_version}", width=(blocksize*grid_width)+grid_offset, height=blocksize*grid_height, vsync=True, resizable=False)
 pyglet.font.add_directory("fonts")
 
 # Init all visual cells
@@ -151,7 +151,7 @@ def update_mouse_px():
         set_px(used_x, used_y, current_mat)
 
 def set_px(x, y, mat):
-    cells[get_cell_index(x, y)] = [mat, random.randint(0, len(colour_data["colours"][mat]) - 1)]
+    cells[get_cell_index(x, y)] = [mat, random.randint(0, len(colour_data["colours"][mat]) - 1), 0]
 
 def update_current_px(x, y):
     globals()["mouse_x"] = min(max(0, x), win.width-1)
@@ -177,7 +177,7 @@ def sand_physics(x, y, this_cell):
     if y != 0 and cells[get_cell_index(x, y - 1)][0] == 0:
         # Move down into air
         cells[get_cell_index(x, y - 1)] = copy.deepcopy(this_cell)
-        cells[get_cell_index(x, y)] = [0, 0]
+        cells[get_cell_index(x, y)] = [0, 0, 0]
         return True
     elif y > 0:
         # Try and move down and to the left or right
@@ -185,21 +185,21 @@ def sand_physics(x, y, this_cell):
             # Try left, then right
             if x > 0 and cells[get_cell_index(x - 1, y - 1)][0] == 0:
                 cells[get_cell_index(x - 1, y - 1)] = copy.deepcopy(this_cell)
-                cells[get_cell_index(x, y)] = [0, 0]
+                cells[get_cell_index(x, y)] = [0, 0, 0]
                 return True
-            elif x < grid_width and cells[get_cell_index(x + 1, y - 1)][0] == 0:
+            elif x < grid_width - 1 and cells[get_cell_index(x + 1, y - 1)][0] == 0:
                 cells[get_cell_index(x + 1, y - 1)] = copy.deepcopy(this_cell)
-                cells[get_cell_index(x, y)] = [0, 0]
+                cells[get_cell_index(x, y)] = [0, 0, 0]
                 return True
         else:
             # Try right, then left
             if x < grid_width - 1 and cells[get_cell_index(x + 1, y - 1)][0] == 0:
                 cells[get_cell_index(x + 1, y - 1)] = copy.deepcopy(this_cell)
-                cells[get_cell_index(x, y)] = [0, 0]
+                cells[get_cell_index(x, y)] = [0, 0, 0]
                 return True
             elif x > 0 and cells[get_cell_index(x - 1, y - 1)][0] == 0:
                 cells[get_cell_index(x - 1, y - 1)] = copy.deepcopy(this_cell)
-                cells[get_cell_index(x, y)] = [0, 0]
+                cells[get_cell_index(x, y)] = [0, 0, 0]
                 return True
     return False
 
@@ -207,59 +207,73 @@ def fluid_physics(x, y, this_cell):
     if y != 0 and cells[get_cell_index(x, y - 1)][0] == 0:
         # Move down into air
         cells[get_cell_index(x, y - 1)] = copy.deepcopy(this_cell)
-        cells[get_cell_index(x, y)] = [0, 0]
+        cells[get_cell_index(x, y)] = [0, 0, 0]
         return True
     elif y > 0:
         # Try and move down and to the left or right
         if random.getrandbits(1):
             # Try left, then right
-            if x > 0 and cells[get_cell_index(x - 1, y - 1)][0] == 0:
+            if x > 0 and cells[get_cell_index(x - 1, y - 1)][0] == 0 and cells[get_cell_index(x-1, y)] == 0:
                 cells[get_cell_index(x - 1, y - 1)] = copy.deepcopy(this_cell)
-                cells[get_cell_index(x, y)] = [0, 0]
+                cells[get_cell_index(x, y)] = [0, 0, 0]
                 return True
-            elif x < grid_width and cells[get_cell_index(x + 1, y - 1)][0] == 0:
+            elif x < grid_width-1 and cells[get_cell_index(x + 1, y - 1)][0] == 0 and cells[get_cell_index(x+1, y)] == 0:
                 cells[get_cell_index(x + 1, y - 1)] = copy.deepcopy(this_cell)
-                cells[get_cell_index(x, y)] = [0, 0]
+                cells[get_cell_index(x, y)] = [0, 0, 0]
                 return True
         else:
             # Try right, then left
-            if x < grid_width - 1 and cells[get_cell_index(x + 1, y - 1)][0] == 0:
+            if x < grid_width - 1 and cells[get_cell_index(x + 1, y - 1)][0] == 0 and cells[get_cell_index(x+1, y)] == 0:
                 cells[get_cell_index(x + 1, y - 1)] = copy.deepcopy(this_cell)
-                cells[get_cell_index(x, y)] = [0, 0]
+                cells[get_cell_index(x, y)] = [0, 0, 0]
                 return True
-            elif x > 0 and cells[get_cell_index(x - 1, y - 1)][0] == 0:
+            elif x > 0 and cells[get_cell_index(x - 1, y - 1)][0] == 0 and cells[get_cell_index(x-1, y)] == 0:
                 cells[get_cell_index(x - 1, y - 1)] = copy.deepcopy(this_cell)
-                cells[get_cell_index(x, y)] = [0, 0]
+                cells[get_cell_index(x, y)] = [0, 0, 0]
                 return True
+    if random.getrandbits(1):
+        # Try and move right, or else left
+        if x < grid_width - 1 and cells[get_cell_index(x + 1, y)][0] == 0:
+            cells[get_cell_index(x + 1, y)] = copy.deepcopy(this_cell)
+            cells[get_cell_index(x + 1, y)][2] = 1
+            cells[get_cell_index(x, y)] = [0, 0, 0]
+            return True
+        elif cells[get_cell_index(x - 1, y)][0] == 0:
+            cells[get_cell_index(x - 1, y)] = copy.deepcopy(this_cell)
+            cells[get_cell_index(x + 1, y)][2] = 1
+            cells[get_cell_index(x, y)] = [0, 0, 0]
+            return True
 
-    # Try and move right, or else left
-    if x < grid_width - 1 and cells[get_cell_index(x + 1, y)][0] == 0:
-        cells[get_cell_index(x + 1, y)] = copy.deepcopy(this_cell)
-        cells[get_cell_index(x, y)] = [0, 0]
-        return True
-    elif cells[get_cell_index(x - 1, y)][0] == 0:
-        cells[get_cell_index(x - 1, y)] = copy.deepcopy(this_cell)
-        cells[get_cell_index(x, y)] = [0, 0]
-        return True
+    else:
+        if  x > 0 and cells[get_cell_index(x - 1, y)][0] == 0:
+            cells[get_cell_index(x - 1, y)] = copy.deepcopy(this_cell)
+            cells[get_cell_index(x + 1, y)][2] = 1
+            cells[get_cell_index(x, y)] = [0, 0, 0]
+            return True
+        elif cells[get_cell_index(x + 1, y)][0] == 0:
+            cells[get_cell_index(x + 1, y)] = copy.deepcopy(this_cell)
+            cells[get_cell_index(x + 1, y)][2] = 1
+            cells[get_cell_index(x, y)] = [0, 0, 0]
+            return True
     return False
 
 def absorb(x, y, mat_in, mat_out):
     for i in range(0, len(mat_in)):
         if y > 0 and cells[get_cell_index(x, y - 1)][0] == mat_in[i]:
             set_px(x, y - 1, mat_out[i])
-            cells[get_cell_index(x, y)] = [0, 0]
+            cells[get_cell_index(x, y)] = [0, 0, 0]
             return True
         elif y < grid_height - 1 and cells[get_cell_index(x, y + 1)][0] == mat_in[i]:
             set_px(x, y + 1, mat_out[i])
-            cells[get_cell_index(x, y)] = [0, 0]
+            cells[get_cell_index(x, y)] = [0, 0, 0]
             return True
         elif x < grid_width - 1 and cells[get_cell_index(x + 1, y)][0] == mat_in[i]:
             set_px(x + 1, y, mat_out[i])
-            cells[get_cell_index(x, y)] = [0, 0]
+            cells[get_cell_index(x, y)] = [0, 0, 0]
             return True
         elif x > 0 and cells[get_cell_index(x - 1, y)][0] == mat_in[i]:
             set_px(x - 1, y, mat_out[i])
-            cells[get_cell_index(x, y)] = [0, 0]
+            cells[get_cell_index(x, y)] = [0, 0, 0]
             return True
     return False
 
@@ -309,12 +323,15 @@ def explosion(x, y, radius):
         for y_ex in range(0, grid_height):
             if radius**2 - (x_ex - x)**2 >= 0 and radius**2 - (y_ex - y)**2 >= 0:
                 if abs(x_ex-x) < math.sqrt(radius**2-(y_ex-y)**2) and abs(y_ex-y) < math.sqrt(radius**2-(x_ex-x)**2):
-                    cells[get_cell_index(x_ex, y_ex)] = [0, 0]
+                    cells[get_cell_index(x_ex, y_ex)] = [0, 0, 0]
 
 def update_physics():
     for x in range(0, grid_width):
         for y in range(0, grid_width):
             this_cell = cells[get_cell_index(x, y)]
+            if this_cell[2] > 0:
+                cells[get_cell_index(x, y)][2] -= 1
+                continue
             match this_cell[0]:
                 case 0:
                     # Air
